@@ -15,12 +15,25 @@ ignoredfiles=(
     README.md
     setup.sh
     update.sh
+    classify.sh
+    custom
     utils
     .DS_Store
     assets
     files
     Filefile
 )
+replaced_files=(
+)
+
+for class in $("${DIR:?}/classify.sh"); do
+    echo "class: ${class}"
+    case $class in
+        hd)
+            ;;
+    esac
+done
+exit
 
 # If we force links to directories which we are deep merging, we gonna have a bad time...
 ignoredfiles+=(${merge_directories[@]})
@@ -66,9 +79,25 @@ mergeDirs() {
     done
 }
 
+replaceLink() {
+    src=$1
+    dest=$2
+
+    echo unlink "${HOMEDIR:?}/${src:?}"
+    echo ln -s "${DIR:?}/${dest:?}" "${HOMEDIR:?}/${src:?}"
+}
+
+replaceLinks() {
+    for link in "${replaced_files[@]}"; do
+        l=($(echo ${link/:/ }))
+        replaceLink "${l[0]}" "${l[1]}"
+    done
+}
+
 linkDotfiles() {
     createLinks
     mergeDirs
+    replaceLinks
 }
 
 if [ "$1" = '-f' -o "$1" = '--force' ]; then
