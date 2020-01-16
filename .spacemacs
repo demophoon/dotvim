@@ -554,10 +554,11 @@ before packages are loaded."
 (define-key global-map "\C-ca" 'org-agenda)
 (define-key global-map "\C-cr" 'org-refile)
 
-(setq org-capture-templates
-    '(
-    ;; Work Tasks
-    ;; ================================================================================
+(setq 'org-capture-templates nil)
+
+;; Work Tasks
+;; ================================================================================
+(add-to-list 'org-capture-templates
     ("w" "Work")
     ("wt" "Todo" entry (file+headline "~/Nextcloud/Org/Work.org" "Tasks")
      "* TODO %?" :prepend t)
@@ -589,9 +590,11 @@ before packages are loaded."
     ("wn" "Note" entry (file+headline "~/Nextcloud/Org/Work.org" "Notes")
      "* %u %?
      %T" :prepend t)
+             )
 
-    ;; Personal
-    ;; ================================================================================
+;; Personal
+;; ================================================================================
+(add-to-list 'org-capture-templates
     ("p" "Personal")
     ("pt" "Todo" entry (file+headline "~/Nextcloud/Org/Personal.org" "Tasks")
      "* TODO %?" :prepend t)
@@ -622,72 +625,31 @@ before packages are loaded."
     ("b" "Blog" entry (file+headline "~/Nextcloud/Org/Blogs.org" "Blogs")
      "* Draft %?
 ** Notes
-" :prepend t)
+" :prepend t))
 
-    ;; D&d templates
-    ;; ================================================================================
-    ("d" "D&D")
+;; D&d templates
+;; ================================================================================
+(setq dnd-campaigns '("Waterdeep" "Saltmarsh"))
 
-    ;; Waterdeep Campaign
-    ;; --------------------------------------------------------------------------------
-    ("dw"  "Waterdeep")
+(add-to-list 'org-capture-templates ("d" "D&D"))
 
-    ;; New Session
-    ("dws" "Session" entry (file+headline "~/Nextcloud/dnd/waterdeep/dnd.org" "Sessions")
-     "* Session %^{Session number}
-%?
-")
-
-    ;; New Character
-    ("dwc" "Character" entry (file+headline "~/Nextcloud/dnd/waterdeep/dnd.org" "Characters")
-     "* %^{Character name} %^g
-%^{Met_Location}p
-%?
-
-** Bonds
-** Appearance
-")
-
-    ;; New Group
-    ("dwg" "Group" entry (file+headline "~/Nextcloud/dnd/waterdeep/dnd.org" "Groups")
-     "* %^{Group name}
-%^{Met_Location}p
-%?
-
-** Bonds
-")
-
-    ;; New Location
-    ("dwl" "Location" entry (file+headline "~/Nextcloud/dnd/waterdeep/dnd.org" "Locations")
-     "* %^{Location name}
-%?
-")
-
-    ;; New Quest
-    ("dwq" "Quest" entry (file+headline "~/Nextcloud/dnd/waterdeep/dnd.org" "Quests")
-     "* TODO %^{Quest name}
-%?
-
-** Reward
-")
-
-    ;; Saltmarsh Campaign
-    ;; --------------------------------------------------------------------------------
-    ("ds"  "Saltmarsh")
+(defun add-campaign-to-org-capture-templates (campaign-name)
+  (let shorthand (string "d" (downcase (substring campaign-name 0 1)))
+    (shorthand campaign-name)
 
     ;; New Session
-    ("dss" "Session" entry (file+headline "~/Nextcloud/dnd/saltmarsh/dnd.org" "Sessions")
+    ((string shorthand "s") "Session" entry (file+headline (string "~/Nextcloud/dnd/" campaign-name "/dnd.org") "Sessions")
      "* Session %^{Session number}
 %?
 ")
 
     ;; Note
-    ("dsn" "Quick Note" plain (file+function "~/Nextcloud/dnd/saltmarsh/dnd.org" my/current-session)
+    ((string shorthand "n") "Quick Note" plain (file+function (string "~/Nextcloud/dnd/" campaign-name "/dnd.org") my/current-session)
      "
 %?")
 
     ;; New Character
-    ("dsc" "Character" entry (file+headline "~/Nextcloud/dnd/saltmarsh/dnd.org" "Characters")
+    ((string shorthand "c") "Character" entry (file+headline (string "~/Nextcloud/dnd/" campaign-name "/dnd.org") "Characters")
      "* %^{Character name} %^g
 %^{Met_Location}p
 %?
@@ -697,7 +659,7 @@ before packages are loaded."
 ")
 
     ;; New Group
-    ("dsg" "Group" entry (file+headline "~/Nextcloud/dnd/saltmarsh/dnd.org" "Groups")
+    ((string shorthand "g") "Group" entry (file+headline (string "~/Nextcloud/dnd/" campaign-name "/dnd.org") "Groups")
      "* %^{Group name}
 %^{Met_Location}p
 %?
@@ -706,13 +668,13 @@ before packages are loaded."
 ")
 
     ;; New Location
-    ("dsl" "Location" entry (file+headline "~/Nextcloud/dnd/saltmarsh/dnd.org" "Locations")
+    ((string shorthand "l") "Location" entry (file+headline (string "~/Nextcloud/dnd/" campaign-name "/dnd.org") "Locations")
      "* %^{Location name}
 %?
 ")
 
     ;; New Quest
-    ("dsq" "Quest" entry (file+headline "~/Nextcloud/dnd/saltmarsh/dnd.org" "Quests")
+    ((string shorthand "q") "Quest" entry (file+headline (string "~/Nextcloud/dnd/" campaign-name "/dnd.org") "Quests")
      "* TODO %^{Quest name}
 %?
 
@@ -720,21 +682,23 @@ before packages are loaded."
 ")
 
     ;; Items
-    ("dsi" "Item")
+    ((string shorthand "i") "Item")
 
     ;; Individual Item
-    ("dsii" "Your Item" table-line (file+olp "~/Nextcloud/dnd/saltmarsh/dnd.org" "Items" "Individual")
+    ((string shorthand "ii") "Your Item" table-line (file+olp (string "~/Nextcloud/dnd/" campaign-name "/dnd.org") "Items" "Individual")
      "| %^{Item Name} | %^{Quantity} | %^{Cost} | =(%\2 * %\3) |"
      :immediate-finish t :table-line-pos "II-1")
 
     ;; Group Item
-    ("dsig" "Group Item" table-line (file+olp "~/Nextcloud/dnd/saltmarsh/dnd.org" "Items" "Group")
+    ((string shorthand "ig") "Group Item" table-line (file+olp (string "~/Nextcloud/dnd/" campaign-name "/dnd.org") "Items" "Group")
      "| %^{Item Name} | %^{Quantity} | %^{Cost} | =(%\2 * %\3) |"
      :immediate-finish t :table-line-pos "II-1")
 
-    ))
+))
 
-    (setq org-log-done 'time)
+(mapcan 'add-campaign-to-org-capture-templates dnd-campaigns)
+
+(setq org-log-done 'time)
 
 ;; Disable Mouse
   ;; Dummy function
